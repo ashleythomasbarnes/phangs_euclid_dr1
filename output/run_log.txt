@@ -1,0 +1,138 @@
+16/118 PHANGS galaxies overlap Euclid DR1 (VIS+Y+H) -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/data/phangs_euclid_dr1_coverage.ecsv
+  ic1954       cover=1.00 centre=True  half-size=1.9'  tiles=102017755
+  ic1993       cover=1.00 centre=True  half-size=1.8'  tiles=102036759,102037360
+  ngc0685      cover=1.00 centre=True  half-size=2.0'  tiles=102017278,102016839
+  ngc1291      cover=1.00 centre=True  half-size=7.3'  tiles=102028713
+  ngc1317      cover=1.00 centre=True  half-size=2.0'  tiles=102033215,102033216
+  ngc1326      cover=1.00 centre=True  half-size=2.8'  tiles=102033796,102033795
+  ngc1365      cover=1.00 centre=True  half-size=7.8'  tiles=102034383,102033800,102033799
+  ngc1433      cover=1.00 centre=True  half-size=4.0'  tiles=102022469,102022470,102021977
+  ngc1512      cover=0.05 centre=False half-size=5.5'  tiles=102026577
+  ngc1546      cover=1.00 centre=True  half-size=2.4'  tiles=102014351
+  ngc1559      cover=1.00 centre=True  half-size=2.7'  tiles=102009180,102009179,102009513,102009514
+  ngc1566      cover=1.00 centre=True  half-size=4.7'  tiles=102015176,102015175
+  ngc1792      cover=1.00 centre=True  half-size=3.6'  tiles=102032107
+  ngc2090      cover=0.67 centre=True  half-size=2.9'  tiles=102036211
+  ngc3031      cover=0.33 centre=False half-size=14.1'  tiles=102160786,102161046,102161047
+  ngc7793      cover=1.00 centre=True  half-size=6.7'  tiles=102039087
+
+=== ic1954
+  field fraction with data in all bands: 100%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ic1954_euclid_rgb.png
+
+=== ic1993
+  field fraction with data in all bands: 0%
+  FAILED: ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')
+
+=== ngc0685
+  field fraction with data in all bands: 100%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc0685_euclid_rgb.png
+
+=== ngc1291
+  field fraction with data in all bands: 98%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1291_euclid_rgb.png
+
+=== ngc1317
+  field fraction with data in all bands: 100%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1317_euclid_rgb.png
+
+=== ngc1326
+  field fraction with data in all bands: 100%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1326_euclid_rgb.png
+
+=== ngc1365
+  grid 4000x4000 @ 0.23"/pix, 3 tile(s)
+    7 piece(s) planned over 3 tile(s), 7 with data  [9s]
+      H: field filled 99%  [919 MB so far, 183s]
+      Y: field filled 99%  [1838 MB so far, 281s]
+    VIS: field filled 100%  [2757 MB so far, 356s]
+  field fraction with data in all bands: 99%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1365_euclid_rgb.png
+
+=== ngc1433
+  field fraction with data in all bands: 99%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1433_euclid_rgb.png
+
+=== ngc1512
+  grid 4000x4000 @ 0.16"/pix, 1 tile(s)
+    2 piece(s) planned over 1 tile(s), 0 with data  [1s]
+      H: field filled 0%  [0 MB so far, 2s]
+      Y: field filled 0%  [0 MB so far, 2s]
+    VIS: field filled 0%  [0 MB so far, 2s]
+  field fraction with data in all bands: 0%
+  FAILED: ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')
+
+=== ngc1546
+  field fraction with data in all bands: 99%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1546_euclid_rgb.png
+
+=== ngc1559
+  grid 3267x3267 @ 0.10"/pix, 4 tile(s)
+    4 piece(s) planned over 4 tile(s), 4 with data  [4s]
+      H: field filled 99%  [140 MB so far, 79s]
+      Y: field filled 100%  [279 MB so far, 122s]
+    VIS: field filled 100%  [419 MB so far, 163s]
+  field fraction with data in all bands: 99%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1559_euclid_rgb.png
+
+=== ngc1566
+  grid 4000x4000 @ 0.14"/pix, 2 tile(s)
+    2 piece(s) planned over 2 tile(s), 2 with data  [1s]
+      H piece 1 (tile 102015176) refused by the service; 4 sub-piece(s) recovered
+      H: field filled 98%  [260 MB so far, 160s]
+      Y: field filled 98%  [520 MB so far, 164s]
+    VIS: field filled 100%  [780 MB so far, 169s]
+  field fraction with data in all bands: 98%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1566_euclid_rgb.png
+
+=== ngc1792
+  grid 4000x4000 @ 0.11"/pix, 1 tile(s)
+    1 piece(s) planned over 1 tile(s), 1 with data  [1s]
+      H: field filled 100%  [75 MB so far, 91s]
+      Y: field filled 100%  [151 MB so far, 94s]
+    VIS: field filled 100%  [226 MB so far, 98s]
+  field fraction with data in all bands: 100%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc1792_euclid_rgb.png
+
+=== ngc2090
+  grid 3501x3501 @ 0.10"/pix, 1 tile(s)
+    1 piece(s) planned over 1 tile(s), 0 with data  [2s]
+      H: field filled 0%  [0 MB so far, 2s]
+      Y: field filled 0%  [0 MB so far, 2s]
+    VIS: field filled 0%  [0 MB so far, 2s]
+  field fraction with data in all bands: 0%
+  FAILED: ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')
+
+=== ngc3031
+  grid 4000x4000 @ 0.42"/pix, 3 tile(s)
+    7 piece(s) planned over 3 tile(s), 7 with data  [13s]
+      H piece 0 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      H piece 1 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      H piece 2 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      H piece 5 (tile 102161047) refused by the service; 4 sub-piece(s) recovered
+      H: field filled 32%  [992 MB so far, 325s]
+      Y piece 0 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      Y piece 1 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      Y piece 2 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      Y piece 5 (tile 102161047) refused by the service; 4 sub-piece(s) recovered
+      Y: field filled 31%  [1984 MB so far, 442s]
+      VIS piece 0 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      VIS piece 1 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      VIS piece 2 (tile 102160786) refused by the service; 4 sub-piece(s) recovered
+      VIS piece 5 (tile 102161047) refused by the service; 4 sub-piece(s) recovered
+    VIS: field filled 32%  [2976 MB so far, 600s]
+  field fraction with data in all bands: 31%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc3031_euclid_rgb.png
+
+=== ngc7793
+  grid 4000x4000 @ 0.20"/pix, 1 tile(s)
+    4 piece(s) planned over 1 tile(s), 4 with data  [2s]
+      H: field filled 99%  [577 MB so far, 84s]
+      Y: field filled 100%  [1154 MB so far, 147s]
+    VIS: field filled 100%  [1731 MB so far, 213s]
+  field fraction with data in all bands: 99%
+  -> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/png/ngc7793_euclid_rgb.png
+
+Done: 13 galaxies; failed/not covered: ['ic1993', 'ngc1512', 'ngc2090']
+-> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/summary.ecsv
+-> /Users/abarnes/GitHub/PHANGS/euclid_dr1/output/phangs_euclid_dr1_gallery.png

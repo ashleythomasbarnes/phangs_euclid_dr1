@@ -1,0 +1,27 @@
+# %ECSV 1.0
+# ---
+# datatype:
+# - {name: name, datatype: string}
+# - {name: status, datatype: string}
+# - {name: data_frac, datatype: float64}
+# - {name: pix_arcsec, datatype: float64}
+# - {name: npix, datatype: int64}
+# - {name: note, datatype: string}
+# schema: astropy-2.0
+name status data_frac pix_arcsec npix note
+ic1954 ok 0.9999684262080096 0.1 2334 ""
+ngc0685 ok 0.9978448404536039 0.1 2351 ""
+ngc1291 ok 0.9826046875 0.21778836364746093 4000 ""
+ngc1317 ok 0.9961496961562916 0.1 2394 ""
+ngc1326 ok 0.9975409929213059 0.1 3343 ""
+ngc1365 ok 0.9861373125 0.23444151916503908 4000 ""
+ngc1433 ok 0.985216 0.12079101867675783 4000 ""
+ngc1546 ok 0.9881775499350524 0.1 2892 ""
+ngc1559 ok 0.9928843864342097 0.1 3267 ""
+ngc1566 ok 0.979212875 0.14094010620117187 4000 ""
+ngc1792 ok 0.999060875 0.10840134582519531 4000 ""
+ngc3031 ok 0.3123465 0.4217301086425781 4000 ""
+ngc7793 ok 0.9930210625 0.20185277099609378 4000 ""
+ic1993 failed nan nan 0 "ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')"
+ngc1512 failed nan nan 0 "ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')"
+ngc2090 failed nan nan 0 "ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')"

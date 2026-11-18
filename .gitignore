@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Large generated products (regenerate with make_phangs_rgb.py / make_poster.py)
+output/fits/
+output/png/
+output/figures/
