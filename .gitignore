@@ -7,3 +7,7 @@ __pycache__/
 output/fits/
 output/png/
 output/figures/
+
+# Never commit FITS files
+*.fits
+*.fits.gz
