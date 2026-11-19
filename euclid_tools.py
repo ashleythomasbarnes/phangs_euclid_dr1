@@ -47,6 +47,8 @@ CUTOUT_URL = 'https://eas.esac.esa.int/sas-cutout/cutout'
 N_WORKERS = 4                     # parallel downloads; the service gives ~5-6 MB/s in total with 4
 MAX_PIECE_PIX = 6000              # largest square cutout (10'), keeps memory per piece < 150 MB
 EDGE_MARGIN_PIX = 20              # stay this far inside the tile image (the service pads cutouts by ~5 px)
+REFETCH_TRIES = 2                 # re-downloads of a band whose mosaic is less complete than the others
+REFETCH_SHORTFALL = 0.03          # ... i.e. by more than this fraction of the field (NISP covers ~1% less than VIS)
 PROBE_GRID = 3                    # probe each piece at PROBE_GRID^2 points for data before downloading it
 
 
@@ -184,6 +186,9 @@ def fetch_cutout(file_path, ra, dec, radius_deg, out_file, tries=4):
     """Download one square cutout (side 2*radius) to out_file. Returns the path, or None if it is off the image."""
     import requests
     params = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'POS': f'CIRCLE,{ra},{dec},{radius_deg}'}
+    # float32 at native scale; the service now and then returns a valid but near-empty FITS, so retry those
+    # (on the last attempt accept anything valid, in case the cutout really is clipped by the image edge)
+    expected = 4 * (2 * radius_deg * 3600 / NATIVE_SCALE.to_value(u.arcsec)) ** 2
     for attempt in range(tries):
         try:
             with _session().post(CUTOUT_URL, data=params, timeout=1800, stream=True) as r:
@@ -191,8 +196,10 @@ def fetch_cutout(file_path, ra, dec, radius_deg, out_file, tries=4):
                     with open(out_file, 'wb') as f:
                         for chunk in r.iter_content(chunk_size=1 << 22):
                             f.write(chunk)
+                    size = Path(out_file).stat().st_size
                     with open(out_file, 'rb') as f:
-                        if f.read(6) == b'SIMPLE' and Path(out_file).stat().st_size >= 2880:
+                        if f.read(6) == b'SIMPLE' and size >= 2880 and (size >= 0.5 * expected
+                                                                         or attempt == tries - 1):
                             return out_file
                 elif 'not within image' in r.text:
                     return None
@@ -326,6 +333,27 @@ def _process_piece(path, bin_fac, pix_area_ratio, out_wcs, shape):
     return (slice(ya, yb), slice(xa, xb)), img
 
 
+def _fill_band(ex, mosaic, band, keep, futs, tiles, raw_dir, bin_fac, pix_area_ratio, out_wcs, shape):
+    """Fill the NaN pixels of mosaic from the downloaded pieces (futures by piece index); returns bytes read."""
+    nbytes = 0
+    for i, p in enumerate(keep):
+        paths = [futs[i].result()]
+        if paths[0] is None:     # rare: refused although inside the image grid -> split into quarters
+            paths = _split_fetch(ex, tiles[p['tile']], band, p, raw_dir / f'{band}_{i}')
+            print(f'      {band} piece {i} (tile {p["tile"]}) refused by the service; '
+                  f'{len(paths)} sub-piece(s) recovered')
+        for path in paths:
+            nbytes += Path(path).stat().st_size
+            res = _process_piece(path, bin_fac, pix_area_ratio, out_wcs, shape)
+            if res is None:
+                continue
+            sl, img = res
+            sub = mosaic[sl]
+            fill = np.isnan(sub) & np.isfinite(img)
+            sub[fill] = img[fill]
+    return nbytes
+
+
 def build_band_mosaics(center, half_size, hits, tiles, out_wcs, shape, scale, raw_dir, verbose=True):
     """Plan, probe, download (in parallel) and mosaic cutouts onto out_wcs. Returns {band: image in uJy/pix}."""
     t_start = time.time()
@@ -349,26 +377,28 @@ def build_band_mosaics(center, half_size, hits, tiles, out_wcs, shape, scale, ra
                 for band in BANDS for i, p in enumerate(keep)}
         out, nbytes = {}, 0
         for band in BANDS:
-            mosaic = np.full(shape, np.nan)
-            for i, p in enumerate(keep):
-                paths = [futs[(band, i)].result()]
-                if paths[0] is None:     # rare: refused although inside the image grid -> split into quarters
-                    paths = _split_fetch(ex, tiles[p['tile']], band, p, raw_dir / f'{band}_{i}')
-                    print(f'      {band} piece {i} (tile {p["tile"]}) refused by the service; '
-                          f'{len(paths)} sub-piece(s) recovered')
-                for path in paths:
-                    nbytes += Path(path).stat().st_size
-                    res = _process_piece(path, bin_fac, pix_area_ratio, out_wcs, shape)
-                    if res is None:
-                        continue
-                    sl, img = res
-                    sub = mosaic[sl]
-                    fill = np.isnan(sub) & np.isfinite(img)
-                    sub[fill] = img[fill]
-            out[band] = mosaic
+            out[band] = np.full(shape, np.nan)
+            nbytes += _fill_band(ex, out[band], band, keep, {i: futs[(band, i)] for i in range(len(keep))}, tiles,
+                                 raw_dir, bin_fac, pix_area_ratio, out_wcs, shape)
             if verbose:
-                print(f'    {band:>3}: field filled {np.isfinite(mosaic).mean():.0%}  '
+                print(f'    {band:>3}: field filled {np.isfinite(out[band]).mean():.0%}  '
                       f'[{nbytes / 1e6:.0f} MB so far, {time.time() - t_start:.0f}s]')
+
+        # 3. the service occasionally returns a full-size cutout with part of it zeroed (a different band each time):
+        #    re-download any band clearly less complete than the best one, filling only its missing pixels
+        for attempt in range(REFETCH_TRIES):
+            best = max(np.isfinite(m).mean() for m in out.values())
+            short = [b for b in BANDS if np.isfinite(out[b]).mean() < best - REFETCH_SHORTFALL]
+            if not short:
+                break
+            for band in short:
+                f = {i: ex.submit(fetch_cutout, tiles[p['tile']][band], p['ra'], p['dec'], p['radius'],
+                                  raw_dir / f'{band}_{i}_r{attempt}.fits') for i, p in enumerate(keep)}
+                nbytes += _fill_band(ex, out[band], band, keep, f, tiles, raw_dir, bin_fac, pix_area_ratio,
+                                     out_wcs, shape)
+                if verbose:
+                    print(f'    {band:>3}: re-fetched, field filled {np.isfinite(out[band]).mean():.0%}  '
+                          f'[{time.time() - t_start:.0f}s]')
     shutil.rmtree(raw_dir, ignore_errors=True)
     return out
 

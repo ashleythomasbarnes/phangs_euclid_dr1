@@ -1,4 +1,14 @@
-# Euclid DR1 RGB images of PHANGS galaxies
+# Euclid DR1 RGB images of PHANGS and GECKOS galaxies
+
+![PHANGS galaxies in Euclid DR1](docs/phangs_euclid_grid_black_colourgrey.jpg)
+
+![GECKOS galaxies in Euclid DR1](docs/geckos_euclid_strips_black_colourgrey.jpg)
+
+*Top: PHANGS (`make_poster.py`, `grid_black_colourgrey`). Bottom: GECKOS (`make_geckos_poster.py`,
+`strips_black_colourgrey`), disks rotated horizontal. Colour galaxies on an inverted-greyscale sky showing faint light.
+Downsized copies in `docs/`; full-resolution PNG/PDF are written to `output*/figures/`.*
+
+## PHANGS
 
 R = H_E, G = Y_E, B = I_E (VIS), from the DR1 MER background-subtracted mosaics, mosaicked across tiles and
 binned for large galaxies. Environment: `conda run --no-capture-output -n astro ...`
@@ -42,3 +52,25 @@ Display-only corrections (the FITS are untouched; all applied in `et.make_rgb`)
 - Faint outskirts fade to grey (`colour_sigma`), for the same reason.
 - Not fixable here: masked areas around bright stars (black patches), NGC 7793's over-subtracted VIS rectangle in the
   centre, NGC 3031's partial coverage.
+
+## GECKOS
+
+Same images for the GECKOS edge-on sample (master catalogue `data/geckos_mastercat_v20260209.csv`, J. van de Sande).
+
+  conda run --no-capture-output -n astro python make_geckos_rgb.py      # coverage, mosaics, PNGs
+  conda run --no-capture-output -n astro python make_geckos_poster.py   # figures
+
+- Field half-size = 4 R_e (r band; min 1.5'), since the catalogue has no R25. Coverage of all 36 galaxies in
+  `data/geckos_euclid_dr1_coverage.ecsv`: 3 fall on DR1 tile footprints, but ESO 484-036 lies in zero padding, so
+  2 have data (ESO 079-003, ESO 120-016; `output_geckos/summary.ecsv`).
+- Colour flattening is off (`FLATTEN` in `make_geckos_rgb.py`): the 30" kernel is wider than these thin disks and
+  left teal fringes along them. All other RGB settings as for PHANGS.
+- Figures in `output_geckos/figures/`: `strips_*` rotate each disk horizontal by its PA and crop to a 3:1 strip
+  (±4 R_e where the field allows) with a rotated N/E compass, ordered by M*; `slide16x9_*`; north-up `cards/`.
+  Overlays: R_e with the catalogue ellipticity, kpc bar, log M*, log SFR.
+- Not fixable here: the black masked patch beside ESO 120-016's disk (masked in all bands in MER).
+
+Download robustness (`euclid_tools.py`, applies to PHANGS too): the cutout service sometimes returns a valid but
+near-empty FITS, or a full-size cutout with a stretch of zeros (a different band each time). `fetch_cutout` retries
+files much smaller than requested, and `build_band_mosaics` re-downloads any band that is more than 3% less complete
+than the best band (`REFETCH_TRIES`, `REFETCH_SHORTFALL`).

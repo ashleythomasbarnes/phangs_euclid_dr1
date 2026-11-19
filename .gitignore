@@ -7,6 +7,10 @@ __pycache__/
 output/fits/
 output/png/
 output/figures/
+output_geckos/fits/
+output_geckos/png/
+output_geckos/figures/
+output_geckos/tmp_raw/
 
 # Never commit FITS files
 *.fits
