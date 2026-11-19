@@ -1,4 +1,14 @@
-# Euclid DR1 RGB images of PHANGS galaxies
+# Euclid DR1 RGB images of PHANGS and GECKOS galaxies
+
+![PHANGS galaxies in Euclid DR1](docs/phangs_euclid_grid_black_colourgrey.jpg)
+
+![GECKOS galaxies in Euclid DR1](docs/geckos_euclid_strips_black_colourgrey.jpg)
+
+*Top: PHANGS (`make_poster.py`, `grid_black_colourgrey`). Bottom: GECKOS (`make_geckos_poster.py`,
+`strips_black_colourgrey`), disks rotated horizontal. Colour galaxies on an inverted-greyscale sky showing faint light.
+Downsized copies in `docs/`; full-resolution PNG/PDF are written to `output*/figures/`.*
+
+## PHANGS
 
 R = H_E, G = Y_E, B = I_E (VIS), from the DR1 MER background-subtracted mosaics, mosaicked across tiles and
 binned for large galaxies. Environment: `conda run --no-capture-output -n astro ...`
@@ -43,7 +53,7 @@ Display-only corrections (the FITS are untouched; all applied in `et.make_rgb`)
 - Not fixable here: masked areas around bright stars (black patches), NGC 7793's over-subtracted VIS rectangle in the
   centre, NGC 3031's partial coverage.
 
-## GECKOS (branch `geckos`)
+## GECKOS
 
 Same images for the GECKOS edge-on sample (master catalogue `data/geckos_mastercat_v20260209.csv`, J. van de Sande).
 
