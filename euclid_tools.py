@@ -437,7 +437,7 @@ def fill_small_holes(img, sigma_pix=3.0, max_iter=4):
     return img
 
 
-def fill_from_reference(img, ref, ring_pix=(3, 15), min_hole_pix=30):
+def fill_from_reference(img, ref, ring_pix=(3, 15), min_hole_pix=30, local_thin=False):
     """
     Fill holes in a NISP band where the reference band (VIS) has data: ref scaled by the median img/ref ratio in a
     ring just outside each hole. For display only. Needed because DR1 MER masks bright bulges in Y/H (NGC 1291 loses
@@ -462,14 +462,35 @@ def fill_from_reference(img, ref, ring_pix=(3, 15), min_hole_pix=30):
             continue
         if m.sum() / max(m.shape) < 8:      # thin masked streaks/arcs (NISP artefacts): interpolate instead
             continue
+        sub = img[sl]
+        thick = m.sum() / max(m.shape)                # ~ width of a long hole, ~ diameter/1.3 of a round one
+        if local_thin and m.sum() < 0.2 * max(m.shape) ** 2:
+            # long thin hole (NISP ghost arcs, e.g. across ESO 079-003's disk): one ratio for the whole arc would put
+            # the sky's colour onto the galaxy, so use the local ratio, smoothed on about the hole width
+            from scipy.ndimage import gaussian_filter
+            both = np.isfinite(sub) & np.isfinite(ref[sl])
+            s = max(3.0, 0.6 * thick)
+            num = gaussian_filter(np.where(both, sub, 0.0), s)
+            den = gaussian_filter(np.where(both, ref[sl], 0.0), s)
+            wt = gaussian_filter(both.astype(float), s)
+            with np.errstate(invalid='ignore', divide='ignore'):
+                ratio = np.where((wt > 0.05) & (np.abs(den) > 0), num / den, np.nan)
+            # where the local ratio is ill-defined (sky, ref ~ 0) fall back to the ring median below
+            r = ref[sl][both]
+            sky_noise = 1.4826 * np.median(np.abs(r - np.median(r)))
+            loc = m & np.isfinite(ratio) & (den / np.maximum(wt, 1e-6) > 3 * sky_noise)
+        else:
+            loc = np.zeros_like(m)
         outer = binary_dilation(m, iterations=ring_pix[1])
         inner = binary_dilation(m, iterations=ring_pix[0])
-        ring = outer & ~inner & np.isfinite(img[sl]) & np.isfinite(ref[sl]) & (ref[sl] > 0)
+        ring = outer & ~inner & np.isfinite(sub) & np.isfinite(ref[sl]) & (ref[sl] > 0)
         if ring.sum() < 10:
             continue
-        ratio = np.median(img[sl][ring] / ref[sl][ring])
-        sub = img[sl]
-        sub[m] = ref[sl][m] * ratio
+        med = np.median(sub[ring] / ref[sl][ring])
+        rest = m & ~loc
+        sub[rest] = ref[sl][rest] * med
+        if loc.any():
+            sub[loc] = ref[sl][loc] * ratio[loc]
     return img
 
 
@@ -542,7 +563,7 @@ def clip_middle_band(images, factor=1.6, min_sigma=5.0):
 
 def make_rgb(images, bands=tuple(BANDS), weights=None, black_sigma=1.0, white_percentile=99.8,
              soften=30.0, saturation=1.25, gamma=1.0, colour_sigma=(3.0, 30.0), flatten_arcsec=None, pixscale=None,
-             flatten_own_colour=True, clip_y=False):
+             flatten_own_colour=True, clip_y=False, fill_vis_from_y=False, local_thin_fill=False):
     """
     asinh RGB in the style of the ESA Euclid releases.
 
@@ -558,7 +579,11 @@ def make_rgb(images, bands=tuple(BANDS), weights=None, black_sigma=1.0, white_pe
     for b in bands:
         img = images[b]
         if ref is not None and b != 'VIS':
-            img = fill_from_reference(img, ref)
+            img = fill_from_reference(img, ref, local_thin=local_thin_fill)
+        elif b == 'VIS' and fill_vis_from_y and 'Y' in images:
+            # the reverse case: MER VIS also has masked patches where NISP is fine (one beside ESO 120-016's disk);
+            # fill them from Y, the nearest band, scaled by the local VIS/Y ratio
+            img = fill_from_reference(img, np.asarray(images['Y'], float), local_thin=local_thin_fill)
         filled[b] = fill_small_holes(img)
     if flatten_arcsec:
         filled = flatten_colour(filled, pixscale, sigma_arcsec=flatten_arcsec, own_colour=flatten_own_colour)

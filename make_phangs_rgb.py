@@ -78,11 +78,11 @@ def coverage(sample, tiles):
 
 
 def save_png(name, images, w, scale, cover_frac, out_png=None, survey='', flatten_override=None,
-             flatten=(FLATTEN_ARCSEC, True)):
+             flatten=(FLATTEN_ARCSEC, True), rgb_kw=None):
     out_png = out_png or OUT_PNG
     flatten_override = FLATTEN_OVERRIDE if flatten_override is None else flatten_override
     flat, own = flatten_override.get(name, flatten)
-    rgb = et.make_rgb(images, **RGB_KW, flatten_arcsec=flat, flatten_own_colour=own, pixscale=scale)
+    rgb = et.make_rgb(images, **(rgb_kw or RGB_KW), flatten_arcsec=flat, flatten_own_colour=own, pixscale=scale)
     side = rgb.shape[0] * scale / 60
     for style, img in (('rgb', rgb), ('rgbgrey', et.colour_on_grey(images, rgb, scale, **GREY_KW))):
         fig = plt.figure(figsize=(9, 9))

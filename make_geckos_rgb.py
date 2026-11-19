@@ -35,6 +35,11 @@ MIN_HALF, MAX_HALF = 1.5 * u.arcmin, 15 * u.arcmin
 # real colour structure and leaves teal fringes along the disk. Per-galaxy (scale arcsec, own colour?) overrides below.
 FLATTEN = (None, True)
 FLATTEN_OVERRIDE = {}
+# Hole filling beyond the PHANGS settings (display only, see et.make_rgb / et.fill_from_reference):
+#  fill_vis_from_y: MER VIS has masked patches where NISP is fine (13" patch beside ESO 120-016's disk)
+#  local_thin_fill: NISP ghost arcs crossing a galaxy (ESO 079-003) are filled with the local H/VIS, Y/VIS ratio,
+#                   not one ratio for the whole arc, which put the sky's colour onto the disk
+RGB_KW = dict(mp.RGB_KW, fill_vis_from_y=True, local_thin_fill=True)
 
 
 def gal_name(row):
@@ -92,7 +97,7 @@ def main():
         try:
             done.append(mp._one_galaxy(r, name, fits_fmt, have, args, tiles, out_png=OUT_PNG, raw_dir=RAW_DIR,
                                        survey='GECKOS  ', flatten_override=FLATTEN_OVERRIDE,
-                                       flatten=FLATTEN))
+                                       flatten=FLATTEN, rgb_kw=RGB_KW))
         except Exception as err:      # keep going with the rest of the sample
             print(f'  FAILED: {err!r}')
             failed.append((name, repr(err)[:120]))

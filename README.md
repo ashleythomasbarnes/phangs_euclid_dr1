@@ -68,7 +68,11 @@ Same images for the GECKOS edge-on sample (master catalogue `data/geckos_masterc
 - Figures in `output_geckos/figures/`: `strips_*` rotate each disk horizontal by its PA and crop to a 3:1 strip
   (±4 R_e where the field allows) with a rotated N/E compass, ordered by M*; `slide16x9_*`; north-up `cards/`.
   Overlays: R_e with the catalogue ellipticity, kpc bar, log M*, log SFR.
-- Not fixable here: the black masked patch beside ESO 120-016's disk (masked in all bands in MER).
+- Extra hole filling for GECKOS only (`RGB_KW` in `make_geckos_rgb.py`; PHANGS output unchanged):
+  `fill_vis_from_y` fills masked VIS patches from Y (a 13" one beside ESO 120-016's disk is masked in VIS only);
+  `local_thin_fill` fills long NISP ghost arcs with the local H/VIS, Y/VIS ratio instead of one ratio per hole (an
+  arc crosses ESO 079-003's disk next to the bright star and came out grey).
+- Not fixable here: a blob masked in all bands south of ESO 079-003, and a thin VIS-masked line along that star's spike.
 
 Download robustness (`euclid_tools.py`, applies to PHANGS too): the cutout service sometimes returns a valid but
 near-empty FITS, or a full-size cutout with a stretch of zeros (a different band each time). `fetch_cutout` retries
