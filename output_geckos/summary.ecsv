@@ -1,0 +1,14 @@
+# %ECSV 1.0
+# ---
+# datatype:
+# - {name: name, datatype: string}
+# - {name: status, datatype: string}
+# - {name: data_frac, datatype: float64}
+# - {name: pix_arcsec, datatype: float64}
+# - {name: npix, datatype: int64}
+# - {name: note, datatype: string}
+# schema: astropy-2.0
+name status data_frac pix_arcsec npix note
+eso079-003 ok 0.9901223074219548 0.1 2979 ""
+eso120-016 ok 0.9985528543819149 0.1 2844 ""
+eso484-036 failed nan nan 0 "ValueError('only 0.0% of the field has data (tile footprint is zero-padded here)')"

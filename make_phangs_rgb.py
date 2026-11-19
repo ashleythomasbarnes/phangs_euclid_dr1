@@ -77,8 +77,11 @@ def coverage(sample, tiles):
     return cov
 
 
-def save_png(name, images, w, scale, cover_frac):
-    flat, own = FLATTEN_OVERRIDE.get(name, (FLATTEN_ARCSEC, True))
+def save_png(name, images, w, scale, cover_frac, out_png=None, survey='', flatten_override=None,
+             flatten=(FLATTEN_ARCSEC, True)):
+    out_png = out_png or OUT_PNG
+    flatten_override = FLATTEN_OVERRIDE if flatten_override is None else flatten_override
+    flat, own = flatten_override.get(name, flatten)
     rgb = et.make_rgb(images, **RGB_KW, flatten_arcsec=flat, flatten_own_colour=own, pixscale=scale)
     side = rgb.shape[0] * scale / 60
     for style, img in (('rgb', rgb), ('rgbgrey', et.colour_on_grey(images, rgb, scale, **GREY_KW))):
@@ -87,13 +90,13 @@ def save_png(name, images, w, scale, cover_frac):
         ax.imshow(img, origin='lower')
         ax.coords[0].set_axislabel('RA')
         ax.coords[1].set_axislabel('Dec')
-        ax.set_title(f"{name.upper()}  Euclid DR1   R: H$_E$  G: Y$_E$  B: I$_E$   "
+        ax.set_title(f"{survey}{name.upper()}  Euclid DR1   R: H$_E$  G: Y$_E$  B: I$_E$   "
                      f"({side:.1f}'  @ {scale:.2f}\"/pix{'' if cover_frac > 0.99 else f', {cover_frac:.0%} covered'})",
                      fontsize=10)
-        fig.savefig(OUT_PNG / f'{name}_euclid_{style}.png', dpi=200, bbox_inches='tight')
+        fig.savefig(out_png / f'{name}_euclid_{style}.png', dpi=200, bbox_inches='tight')
         plt.close(fig)
         # plain full-resolution image without axes, for slides etc.
-        plt.imsave(OUT_PNG / f'{name}_euclid_{style}_noaxes.png', np.clip(img[::-1], 0, 1))
+        plt.imsave(out_png / f'{name}_euclid_{style}_noaxes.png', np.clip(img[::-1], 0, 1))
 
 
 GALLERY = et.ROOT / 'output' / 'phangs_euclid_dr1_gallery{suffix}.png'
@@ -133,7 +136,9 @@ def make_galleries(names):
         make_gallery(names, style=style)
 
 
-def _one_galaxy(r, name, fits_fmt, have, args, tiles):
+def _one_galaxy(r, name, fits_fmt, have, args, tiles, out_png=None, raw_dir=None, **png_kw):
+    out_png = out_png or OUT_PNG
+    raw_dir = raw_dir or RAW_DIR
     if args.png_only or (have and not args.overwrite):
         if not have:
             raise FileNotFoundError('no FITS yet')
@@ -146,15 +151,15 @@ def _one_galaxy(r, name, fits_fmt, have, args, tiles):
         w, shape, scale = et.output_wcs(c, h, MAX_NPIX)
         hits, _, _ = et.tiles_overlapping(c, h, tiles)
         print(f'  grid {shape[0]}x{shape[1]} @ {scale:.2f}"/pix, {len(hits)} tile(s)')
-        images = et.build_band_mosaics(c, h, hits, tiles, w, shape, scale, RAW_DIR / name)
+        images = et.build_band_mosaics(c, h, hits, tiles, w, shape, scale, raw_dir / name)
         et.write_band_fits(images, w, scale, fits_fmt,
                            {'OBJECT': name, 'TILES': r['tiles'][:60], 'COVFRAC': round(float(r['cover_frac']), 3)})
     data_frac = min(float(np.isfinite(images[b]).mean()) for b in et.BANDS)
     print(f'  field fraction with data in all bands: {data_frac:.0%}')
     if data_frac < MIN_DATA_FRAC:
         raise ValueError(f'only {data_frac:.1%} of the field has data (tile footprint is zero-padded here)')
-    save_png(name, images, w, scale, data_frac)
-    print(f'  -> {OUT_PNG / (name + "_euclid_rgb.png")}')
+    save_png(name, images, w, scale, data_frac, out_png=out_png, **png_kw)
+    print(f'  -> {out_png / (name + "_euclid_rgb.png")}')
     return name, data_frac, scale, images['VIS'].shape[0]
 
 
